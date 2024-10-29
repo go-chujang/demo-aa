@@ -29,15 +29,13 @@ Account Abstraction 기반의 계정으로 Gamble을 할 수 있습니다.
 - `client` : 유저가 사용하는 클라이언트 애플리케이션입니다.
 
 
-## 아키텍처
+## 시퀀스 다이어그램
 유저가 `client`를 통해 `userOperation`을 전송하면, `service` API를 통해 Kafka의 토픽에 메시지가 전송.
 
 - `txrmngr`와 `operator`는 트랜잭션들을 모아서 서명하고 `sendTransaction`을 통해 블록체인에 전송하며, DB에 요청 사항을 기록.
 - `watchdog`은 지속적으로 블록체인을 구독하며 트랜잭션 처리 결과를 DB에 기록. 유저는 `userOperation` 실행 시 `user` DB에 트랜잭션이 `pending` 상태임을 업데이트하며, 이후 조회 시점에 `consumer`와 `watchdog`을 통해 기록된 트랜잭션 상태를 확인하고 동기화.
 - 조회를 하기 전까지는 `pending` 상태이며, 이 상태에서는 유저가 다음 `userOperation`을 전송할 수 없음. 조회 이후부터 유저의 상태는 동기화.
 
-
-### 시퀀스 다이어그램
 
 ```mermaid
 sequenceDiagram
