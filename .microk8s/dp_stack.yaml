@@ -1,0 +1,160 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: stack-mongodb
+  name: dp-stack-mongodb
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stack-mongodb
+  template:
+    metadata:
+      labels:
+        app: stack-mongodb
+    spec:
+      containers:
+        - name: stack-mongodb
+          image: mongo:5.0.0
+          ports:
+            - containerPort: 27017
+          envFrom:
+            - configMapRef:
+                name: mongodb-config
+          volumeMounts:
+            - name: mongodb-hostpath-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongodb-hostpath-storage
+          hostPath:
+            path: /var/snap/microk8s/common/default-storage/mongodb
+            type: DirectoryOrCreate
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: stack-ganache
+  name: dp-stack-ganache
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stack-ganache
+  template:
+    metadata:
+      labels:
+        app: stack-ganache
+    spec:
+      containers:
+      - name: stack-ganache
+        image: trufflesuite/ganache:latest
+        args:
+          - "--logging.debug"
+          - "true"
+          - "--logging.verbose"
+          - "true"
+          - "--database.dbPath"
+          - "/data/ganache"
+          - "--server.host"
+          - "0.0.0.0"
+          - "--server.port"
+          - "8545"
+          - "--chain.chainId"
+          - "515"
+          - "--chain.hardfork"
+          - "london"
+          - "--wallet.totalAccounts"
+          - "10"
+          - "--wallet.defaultBalance"
+          - "100000"
+          - "--wallet.mnemonic"
+          - "test test test test test test test test test test test test"
+        ports:
+        - containerPort: 8545
+        - containerPort: 8546
+        volumeMounts:
+        - name: ganache-hostpath-storage
+          mountPath: /data/ganache
+      volumes:
+      - name: ganache-hostpath-storage
+        hostPath:
+          path: /var/snap/microk8s/common/default-storage/ganache
+          type: DirectoryOrCreate
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: stack-zookeeper
+  name: dp-stack-zookeeper
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stack-zookeeper
+  template:
+    metadata:
+      labels:
+        app: stack-zookeeper
+    spec:
+      containers:
+        - name: stack-zookeeper
+          image: bitnami/zookeeper:3.8.0
+          env:
+            - name: ALLOW_ANONYMOUS_LOGIN
+              value: "yes"
+          ports:
+            - containerPort: 2181
+          volumeMounts:
+            - name: zookeeper-hostpath-storage
+              mountPath: /bitnami/zookeeper
+      volumes:
+        - name: zookeeper-hostpath-storage
+          hostPath:
+            path: /var/snap/microk8s/common/default-storage/zookeeper
+            type: DirectoryOrCreate
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: stack-kafka
+  name: dp-stack-kafka
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stack-kafka
+  template:
+    metadata:
+      labels:
+        app: stack-kafka
+    spec:
+      containers:
+        - name: stack-kafka
+          image: bitnami/kafka:3.1.0
+          envFrom:
+            - configMapRef:
+                name: kafka-config
+          ports:
+            - containerPort: 9092
+            - containerPort: 9094
+          volumeMounts:
+            - name: kafka-hostpath-storage
+              mountPath: /bitnami/kafka
+      volumes:
+        - name: kafka-hostpath-storage
+          hostPath:
+            path: /var/snap/microk8s/common/default-storage/kafka
+            type: DirectoryOrCreate

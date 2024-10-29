@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-ingress-tcp-microk8s-conf
+  namespace: ingress
+data:
+  8000: "demo/svc-mongodb:27017"
+  8100: "demo/svc-ganache:8545"
+  8101: "demo/svc-ganache:8546"
+  8200: "demo/svc-kafka:9094"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-config
+  namespace: demo
+data:
+  MONGO_INITDB_ROOT_USERNAME: "gochujang"
+  MONGO_INITDB_ROOT_PASSWORD: "123qwe"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-config
+  namespace: demo
+data:
+  KAFKA_CFG_ZOOKEEPER_CONNECT: "svc-zookeeper:2181"
+  ALLOW_PLAINTEXT_LISTENER: "yes"
+  KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,EXTERNAL://:9094"
+  KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://svc-kafka:9092,EXTERNAL://172.29.126.229:8200"
+  KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT"
+  KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: demo
+data:
+  config.yaml: |
+    common:
+      default:
+        API_PORT: "5000"
+        API_TIMEOUT: "3s"
+        MONGO_USER: "gochujang"
+        MONGO_PASSWORD: "123qwe"
+        MONGO_DATABASE: "demo"
+        KAFKA_VERSION: "3.1.0"
+      local:
+        MONGO_HOST: "172.29.126.229:8000"
+        RPC_ENDPOINT: "http://172.29.126.229:8100"
+        KAFKA_ADDRS: "172.29.126.229:8200"
+      demo:
+        MONGO_HOST: "svc-mongodb:27017"
+        RPC_ENDPOINT: "http://svc-ganache:8545"
+        KAFKA_ADDRS: "svc-kafka:9094"
+
+    setup:
+      local:
+        MNEMONIC_STRING: "test test test test test test test test test test test test"
+        MNEMONIC_ACCOUNTS: "10"
+
+    watchdog:
+      default:
+        WATCHDOG_BLOCK_RANGE: "10"
+      local:
+        WATCHDOG_INTERVAL: "3s"
+      demo:
+        WATCHDOG_INTERVAL: "500ms"
+
+    txrmngr:
+      default:
+        CONSUMER_GROUP_ID: "manager"
+        CONSUME_BATCHSIZE: "1"
+        CONSUME_MAX_INTERVAL: "1s"
+
+    operator:
+      default:
+        CONSUMER_GROUP_ID: "operator"
+        CONSUME_BATCHSIZE: "5"
+      local:
+        CONSUME_MAX_INTERVAL: "3s"
+      demo:
+        CONSUME_MAX_INTERVAL: "1s"
+
+    service:
+      default:
+        FAUCET_AMOUNT: "100000000000000000"
+        FAUCET_LIMIT: "10m"
+      local:
+        FAUCET_LIMIT: "5m"

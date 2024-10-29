@@ -1,0 +1,187 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dp-app-txrmngr
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-txrmngr
+  template:
+    metadata:
+      labels:
+        app: app-txrmngr
+      annotations:
+        configmap.revision: "1"
+    spec:
+      containers:
+        - name: app-txrmngr
+          image: localhost:32000/txrmngr:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          env:
+            - name: APP_TAG
+              value: txrmngr
+            - name: ENV_TAG
+              value: demo
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: config-volume
+              mountPath: /home/go-chujang/config.yaml
+              subPath: config.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: app-config
+            items:
+              - key: config.yaml
+                path: config.yaml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dp-app-operator
+  namespace: demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-operator
+  template:
+    metadata:
+      labels:
+        app: app-operator
+      annotations:
+        configmap.revision: "1"
+    spec:
+      containers:
+        - name: app-operator
+          image: localhost:32000/operator:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          env:
+            - name: APP_TAG
+              value: operator
+            - name: ENV_TAG
+              value: demo
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: config-volume
+              mountPath: /home/go-chujang/config.yaml
+              subPath: config.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: app-config
+            items:
+              - key: config.yaml
+                path: config.yaml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dp-app-watchdog
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-watchdog
+  template:
+    metadata:
+      labels:
+        app: app-watchdog
+      annotations:
+        configmap.revision: "1"
+    spec:
+      containers:
+        - name: app-watchdog
+          image: localhost:32000/watchdog:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          env:
+            - name: APP_TAG
+              value: watchdog
+            - name: ENV_TAG
+              value: demo
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: config-volume
+              mountPath: /home/go-chujang/config.yaml
+              subPath: config.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: app-config
+            items:
+              - key: config.yaml
+                path: config.yaml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dp-app-service
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-service
+  template:
+    metadata:
+      labels:
+        app: app-service
+      annotations:
+        configmap.revision: "1"
+    spec:
+      containers:
+        - name: app-service
+          image: localhost:32000/service:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          env:
+            - name: APP_TAG
+              value: service
+            - name: ENV_TAG
+              value: demo
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: config-volume
+              mountPath: /home/go-chujang/config.yaml
+              subPath: config.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: app-config
+            items:
+              - key: config.yaml
+                path: config.yaml
