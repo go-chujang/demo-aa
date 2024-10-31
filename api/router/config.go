@@ -24,6 +24,8 @@ type Config struct {
 	RWTimeout      time.Duration
 
 	// middlewares
+	UseLiveness     *bool
+	UseReadiness    *bool
 	UseCors         *bool
 	UseCacheControl *bool
 	UseAuth         *bool
@@ -41,6 +43,8 @@ var ConfigDefault = Config{
 	RWTimeout:       time.Second * 2,
 	RequestLogger:   os.Stdout,
 	ResponseLogger:  os.Stdout,
+	UseLiveness:     conv.ToPtr(true),
+	UseReadiness:    conv.ToPtr(false),
 	UseCors:         conv.ToPtr(false),
 	UseCacheControl: conv.ToPtr(false),
 	UseAuth:         conv.ToPtr(true),
@@ -74,6 +78,12 @@ func configDefault(config ...Config) Config {
 	}
 	if cfg.ResponseLogger == nil {
 		cfg.ResponseLogger = ConfigDefault.ResponseLogger
+	}
+	if cfg.UseLiveness == nil {
+		cfg.UseLiveness = ConfigDefault.UseLiveness
+	}
+	if cfg.UseReadiness == nil {
+		cfg.UseReadiness = ConfigDefault.UseReadiness
 	}
 	if cfg.UseCors == nil {
 		cfg.UseCors = ConfigDefault.UseCors

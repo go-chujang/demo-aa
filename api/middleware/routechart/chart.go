@@ -18,26 +18,7 @@ type Row struct {
 	Handler fiber.Handler
 }
 
-func ChartWithDefault(charts ...Chart) []Chart {
-	chart := make([]Chart, 0, 1+len(charts))
-	chart = append(chart, defaultChart)
-	return append(chart, charts...)
-}
-
 var (
-	healthCheck fiber.Handler = func(c fiber.Ctx) error { return c.SendString("healty") }
-
-	defaultChart = Chart{
-		Prefix: "",
-		Rows: []Row{
-			{
-				Method:  fiber.MethodGet,
-				Path:    "/health",
-				Policy:  ctxutil.NewPolicy().SkipAll(),
-				Handler: healthCheck,
-			},
-		},
-	}
 	ServiceV1 = Chart{
 		Prefix: "/svc/v1",
 		Rows: []Row{

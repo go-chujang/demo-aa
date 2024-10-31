@@ -167,6 +167,15 @@ spec:
             limits:
               cpu: "200m"
               memory: "128Mi"
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 5000
+            periodSeconds: 10
+            initialDelaySeconds: 120
+            failureThreshold: 3
+            timeoutSeconds: 60
+            successThreshold: 1
           env:
             - name: APP_TAG
               value: service

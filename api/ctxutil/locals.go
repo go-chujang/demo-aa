@@ -10,6 +10,5 @@ func Locals[K, V any](c fiber.Ctx, key K) (V, bool) {
 }
 
 func MustLocals[K, V any](c fiber.Ctx, key K) V {
-	value, _ := c.Locals(key).(V)
-	return value
+	return c.Locals(key).(V)
 }

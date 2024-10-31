@@ -10,6 +10,7 @@ import (
 	"github.com/go-chujang/demo-aa/platform/mongox"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cors"
+	"github.com/gofiber/fiber/v3/middleware/healthcheck"
 	"github.com/gofiber/fiber/v3/middleware/helmet"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
@@ -23,8 +24,16 @@ type Router struct {
 
 func New(config ...Config) (*Router, error) {
 	cfg := configDefault(config...)
+	chart := cfg.RouteChart
 
 	app := fiber.New(cfg.fiberConfig())
+	if *cfg.UseLiveness {
+		app.Get(healthcheck.DefaultLivenessEndpoint, healthcheck.NewHealthChecker())
+	}
+	if *cfg.UseReadiness {
+		app.Get(healthcheck.DefaultReadinessEndpoint, healthcheck.NewHealthChecker())
+	}
+
 	app.Use(recover.New())
 	app.Use(requestid.New())
 	app.Use(helmet.New())
@@ -32,8 +41,7 @@ func New(config ...Config) (*Router, error) {
 		app.Use(cors.New())
 	}
 
-	chartList := routechart.ChartWithDefault(cfg.RouteChart...)
-	app.Use(routechart.New(chartList...))
+	app.Use(routechart.New(chart...))
 
 	if *cfg.UseAuth {
 		app.Use(auth.Basic(mongox.DB()))
@@ -42,7 +50,7 @@ func New(config ...Config) (*Router, error) {
 	app.Use(logger.NewResponseLogger(cfg.ResponseLogger))
 	app.Use(logger.NewRequestLogger(cfg.RequestLogger))
 
-	for _, chart := range chartList {
+	for _, chart := range chart {
 		group := app.Group(chart.Prefix)
 		for _, row := range chart.Rows {
 			handler := ternary.Cond(cfg.CtxTimeout > 0,
