@@ -81,13 +81,11 @@ func init() {
 	for k, v := range appenv {
 		confHolder[key(k)] = v
 	}
-
-	if envtag == local {
-		return
-	}
 	// print env
 	for k, v := range confHolder {
-		logx.Write(apptag, "%s\t%s", k, v)
+		if envtag == demo {
+			logx.Write(apptag, "%s\t%s", k, v)
+		}
 		os.Setenv(k.String(), v)
 	}
 }

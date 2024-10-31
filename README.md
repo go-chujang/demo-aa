@@ -1,22 +1,19 @@
 # demo-aa
-Account Abstraction 기반의 계정으로 Gamble을 할 수 있습니다.
+`가위-바위-보`와 `0~9 숫자 맞추기` 게임을 즐길 수 있습니다.
 
-`gamble`
-
-- 가위바위보
-- 0부터 9까지 숫자 맞추기 게임
+유저는 Account Abstraction 계정과 ERC20 토큰을 수수료로 지급하며, ERC-1155 기반의 게임을 할 수 있습니다.
+게임을 이겨 ERC-1155 토큰을 얻고 다시 ERC20 토큰으로 교환이 가능합니다.
 
 ## 기술 스택
-다음과 같은 기술 스택을 사용하여 단일 WSL2 환경에 microK8s로 배포
+다음과 같은 기술 스택을 사용하여 단일 WSL2 ubuntu 에 microK8s로 배포
 
 - `go (version 1.23 이상)`  fiber 프레임워크 사용
-- `account abstraction` [eth-infinitism samples](https://github.com/eth-infinitism/account-abstraction/tree/develop/contracts/samples)
+- `account abstraction` [eth-infinitism](https://github.com/eth-infinitism/account-abstraction/tree/develop) contracts 사용 (GPL-3.0 license)
 - `microK8s`
 - `ganache`
 - `mongoDB`
 - `kafka`
 - `grafana, loki, promtail` stdout으로 출력되는 로그를 수집하고 시각화
-
 
 ## 애플리케이션
 `cmd` 디렉토리 6가지 애플리케이션.
@@ -27,7 +24,6 @@ Account Abstraction 기반의 계정으로 Gamble을 할 수 있습니다.
 - `operator` : UserOperation 트랜잭션을 서명하고 전송하는 Consumer입니다.
 - `service` : 유저에게 API를 제공하며, Kafka 토픽에 메시지를 생산(Produce)합니다.
 - `client` : 유저가 사용하는 클라이언트 애플리케이션입니다.
-
 
 ## 시퀀스 다이어그램
 유저가 `client`를 통해 `userOperation`을 전송하면, `service` API를 통해 Kafka의 토픽에 메시지가 전송.
@@ -141,26 +137,7 @@ sequenceDiagram
 ## 실행 방법
 
 ### Docker 설치
-
-```bash
-sudo apt-get update -y
-
-sudo apt-get install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-sudo usermod -aG docker $USER
-sudo systemctl start docker
-sudo systemctl enable docker
-```
+> 참고: [Docker 설치 문서](https://docs.docker.com/engine/install/ubuntu/)
 
 ### MicroK8s 설치
 > 참고: [MicroK8s 설치 문서](https://microk8s.io/docs/install-wsl2) & [MicroK8s registry](https://microk8s.io/docs/registry-built-in)
