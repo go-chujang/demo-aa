@@ -82,6 +82,8 @@ func init() {
 		confHolder[key(k)] = v
 	}
 	// print env
+	logx.Write(apptag, "APP_TAG\t%s", apptag)
+	logx.Write(apptag, "ENV_TAG\t%s", envtag)
 	for k, v := range confHolder {
 		if envtag == demo {
 			logx.Write(apptag, "%s\t%s", k, v)

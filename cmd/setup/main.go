@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"regexp"
 
 	"github.com/go-chujang/demo-aa/config"
@@ -42,4 +43,5 @@ func main() {
 	// kafka topics
 	setup_kafka()
 	log.Println("done setup_kafka")
+	os.Exit(0)
 }

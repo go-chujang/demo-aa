@@ -4,6 +4,8 @@ import (
 	"crypto/ecdsa"
 	"errors"
 
+	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -14,6 +16,36 @@ import (
 )
 
 func ParseMnemonic(mnemonic string, count uint32, derivationPath ...accounts.DerivationPath) ([]*ecdsa.PrivateKey, error) {
+	seed := bip39.NewSeed(mnemonic, "")
+	master, err := hdkeychain.NewMaster(seed, &chaincfg.Params{})
+	if err != nil {
+		return nil, err
+	}
+
+	parsed := make([]*ecdsa.PrivateKey, 0, count)
+	path := ternary.VArgs(nil, accounts.DefaultBaseDerivationPath, derivationPath...)
+	for idx := range count {
+		path[len(path)-1] = idx
+
+		key := master
+		for _, v := range path {
+			key, _ = key.DeriveNonStandard(v)
+		}
+		pv, err := key.ECPrivKey()
+		if err != nil {
+			return nil, err
+		}
+		// parsed = append(parsed, pv.ToECDSA())
+		ecdsaKey, err := crypto.ToECDSA(crypto.FromECDSA(pv.ToECDSA()))
+		if err != nil {
+			return nil, err
+		}
+		parsed = append(parsed, ecdsaKey)
+	}
+	return parsed, nil
+}
+
+func ParseMnemonic2(mnemonic string, count uint32, derivationPath ...accounts.DerivationPath) ([]*ecdsa.PrivateKey, error) {
 	seed := bip39.NewSeed(mnemonic, "")
 	wallet, err := hdwallet.NewFromSeed(seed)
 	if err != nil {

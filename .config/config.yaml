@@ -13,10 +13,10 @@ common:
   demo:
     MONGO_HOST: "svc-mongodb:27017"
     RPC_ENDPOINT: "http://svc-ganache:8545"
-    KAFKA_ADDRS: "svc-kafka:9094"
+    KAFKA_ADDRS: "svc-kafka:9092"
 
 setup:
-  local:
+  default:
     MNEMONIC_STRING: "test test test test test test test test test test test test"
     MNEMONIC_ACCOUNTS: "10"
 

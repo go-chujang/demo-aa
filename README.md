@@ -5,7 +5,7 @@
 게임을 이겨 ERC-1155 토큰을 얻고 다시 ERC20 토큰으로 교환이 가능합니다.
 
 ## 기술 스택
-다음과 같은 기술 스택을 사용하여 단일 WSL2 ubuntu 에 microK8s로 배포
+다음과 같은 기술 스택을 사용하여 단일 WSL2 ubuntu 20.04.6 에 microK8s로 배포
 
 - `go (version 1.23 이상)`  fiber 프레임워크 사용
 - `account abstraction` [eth-infinitism](https://github.com/eth-infinitism/account-abstraction/tree/develop) contracts 사용 (GPL-3.0 license)
@@ -149,28 +149,20 @@ sudo snap install microk8s --classic
 sudo snap alias microk8s.kubectl kubectl
 sudo microk8s start
 
-microk8s enable dns hostpath-storage rbac metrics-server ingress
-microk8s enable registry:size=40Gi
+microk8s enable dns hostpath-storage rbac metrics-server ingress registry
 ```
 
-### Namespace, ConfigMap, Stack 배포
-
+### Docker 이미지 빌드 및 registry에 푸시
 ```bash
-kubectl apply -f ./.microk8s/namespace.yaml
-kubectl apply -f ./.microk8s/configmap.yaml
-kubectl apply -f ./.microk8s/dp_stack.yaml
-kubectl apply -f ./.microk8s/svc_stack.yaml
-kubectl apply -f ./.microk8s/ingress.yaml
+./build.sh
 ```
 
-### Setup 실행
-
+### 스택 및 애플리케이션 배포
 ```bash
-cd cmd/setup
-go run .
+./deploy.sh
 ```
 
-- 로컬에서 `setup`을 실행하는 경우 추가 작업
+- 로컬에서 테스트할 경우
 
 ```bash
 kubectl edit daemonset nginx-ingress-microk8s-controller -n ingress
@@ -199,38 +191,12 @@ kubectl edit daemonset nginx-ingress-microk8s-controller -n ingress
 ...
 ```
 
-### Docker 이미지 빌드 및 registry에 푸시
-
-```bash
-docker build --build-arg CMD_PATH=txrmngr -t localhost:32000/txrmngr:latest .
-docker build --build-arg CMD_PATH=operator -t localhost:32000/operator:latest .
-docker build --build-arg CMD_PATH=watchdog -t localhost:32000/watchdog:latest .
-docker build --build-arg CMD_PATH=service -t localhost:32000/service:latest .
-
-docker push localhost:32000/txrmngr:latest
-docker push localhost:32000/operator:latest
-docker push localhost:32000/watchdog:latest
-docker push localhost:32000/service:latest
-```
-
-### 애플리케이션 배포
-
-```bash
-kubectl apply -f ./.microk8s/dp_app.yaml
-kubectl apply -f ./.microk8s/svc_app.yaml
-kubectl apply -f ./.microk8s/hpas.yaml
-```
-
 ### 로그 수집 (옵션)
 
 로그 수집을 원할 경우 다음을 실행합니다:
 
 ```bash
-kubectl apply -f ./.microk8s/loki/configmap.yaml
-kubectl apply -f ./.microk8s/loki/loki.yaml
-kubectl apply -f ./.microk8s/loki/rbac.yaml
-kubectl apply -f ./.microk8s/loki/promtail.yaml
-kubectl apply -f ./.microk8s/loki/grafana.yaml
+./deploy_loki.sh
 ```
 
 ### Client 테스트

@@ -24,14 +24,12 @@ spec:
             - configMapRef:
                 name: mongodb-config
           volumeMounts:
-            - name: mongodb-hostpath-storage
+            - name: mongodb-storage
               mountPath: /data/db
       volumes:
-        - name: mongodb-hostpath-storage
-          hostPath:
-            path: /var/snap/microk8s/common/default-storage/mongodb
-            type: DirectoryOrCreate
-
+        - name: mongodb-storage
+          persistentVolumeClaim:
+            claimName: pvc-mongodb
 ---
 
 apiVersion: apps/v1
@@ -68,7 +66,7 @@ spec:
           - "--chain.chainId"
           - "515"
           - "--chain.hardfork"
-          - "london"
+          - "merge"
           - "--wallet.totalAccounts"
           - "10"
           - "--wallet.defaultBalance"
@@ -76,17 +74,15 @@ spec:
           - "--wallet.mnemonic"
           - "test test test test test test test test test test test test"
         ports:
-        - containerPort: 8545
-        - containerPort: 8546
+          - containerPort: 8545
+          - containerPort: 8546
         volumeMounts:
-        - name: ganache-hostpath-storage
-          mountPath: /data/ganache
+          - name: ganache-storage
+            mountPath: /data/ganache
       volumes:
-      - name: ganache-hostpath-storage
-        hostPath:
-          path: /var/snap/microk8s/common/default-storage/ganache
-          type: DirectoryOrCreate
-
+        - name: ganache-storage
+          persistentVolumeClaim:
+            claimName: pvc-ganache
 ---
 
 apiVersion: apps/v1
@@ -106,6 +102,9 @@ spec:
       labels:
         app: stack-zookeeper
     spec:
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
       containers:
         - name: stack-zookeeper
           image: bitnami/zookeeper:3.8.0
@@ -115,13 +114,12 @@ spec:
           ports:
             - containerPort: 2181
           volumeMounts:
-            - name: zookeeper-hostpath-storage
+            - name: zookeeper-storage
               mountPath: /bitnami/zookeeper
       volumes:
-        - name: zookeeper-hostpath-storage
-          hostPath:
-            path: /var/snap/microk8s/common/default-storage/zookeeper
-            type: DirectoryOrCreate
+        - name: zookeeper-storage
+          persistentVolumeClaim:
+            claimName: pvc-zookeeper
 ---
 
 apiVersion: apps/v1
@@ -141,6 +139,9 @@ spec:
       labels:
         app: stack-kafka
     spec:
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
       containers:
         - name: stack-kafka
           image: bitnami/kafka:3.1.0
@@ -151,10 +152,9 @@ spec:
             - containerPort: 9092
             - containerPort: 9094
           volumeMounts:
-            - name: kafka-hostpath-storage
+            - name: kafka-storage
               mountPath: /bitnami/kafka
       volumes:
-        - name: kafka-hostpath-storage
-          hostPath:
-            path: /var/snap/microk8s/common/default-storage/kafka
-            type: DirectoryOrCreate
+        - name: kafka-storage
+          persistentVolumeClaim:
+            claimName: pvc-kafka

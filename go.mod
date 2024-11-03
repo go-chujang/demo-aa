@@ -4,15 +4,17 @@ go 1.23.0
 
 require (
 	github.com/IBM/sarama v1.43.3
-	github.com/bytedance/sonic v1.12.3
+	github.com/btcsuite/btcd v0.22.1
+	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce
+	github.com/bytedance/sonic v1.12.1
 	github.com/ethereum/go-ethereum v1.14.11
 	github.com/go-chujang/packany v0.0.0-20241019092820-9c2361191159
 	github.com/gofiber/fiber/v3 v3.0.0-beta.3
 	github.com/google/uuid v1.6.0
 	github.com/miguelmota/go-ethereum-hdwallet v0.1.2
 	github.com/tyler-smith/go-bip39 v1.1.0
-	github.com/valyala/fasthttp v1.57.0
-	go.mongodb.org/mongo-driver v1.17.1
+	github.com/valyala/fasthttp v1.55.0
+	go.mongodb.org/mongo-driver v1.16.1
 	golang.org/x/sync v0.8.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -22,10 +24,8 @@ require (
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/bits-and-blooms/bitset v1.13.0 // indirect
-	github.com/btcsuite/btcd v0.22.1 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.4 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1 // indirect
-	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect

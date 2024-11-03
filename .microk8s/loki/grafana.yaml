@@ -2,22 +2,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: grafana
+  name: dp-app-grafana
   namespace: demo
   labels:
-    app: grafana
+    app: app-grafana
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: grafana
+      app: app-grafana
   template:
     metadata:
       labels:
-        app: grafana
+        app: app-grafana
     spec:
       containers:
-        - name: grafana
+        - name: app-grafana
           image: grafana/grafana:9.5.2
           ports:
             - containerPort: 3000
@@ -31,20 +31,21 @@ spec:
               mountPath: /var/lib/grafana
       volumes:
         - name: grafana-storage
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: pvc-grafana
 ---
 # service
 apiVersion: v1
 kind: Service
 metadata:
-  name: grafana
+  name: svc-grafana
   namespace: demo
   labels:
-    app: grafana
+    app: svc-grafana
 spec:
   type: NodePort
   selector:
-    app: grafana
+    app: app-grafana
   ports:
     - port: 3000
       targetPort: 3000

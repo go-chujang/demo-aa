@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: setup-once
+  namespace: demo
+spec:
+  template:
+    metadata:
+      labels:
+        app: setup-once
+    spec:
+      containers:
+        - name: setup
+          image: localhost:32000/setup:latest
+          imagePullPolicy: Always
+          env:
+            - name: APP_TAG
+              value: setup
+            - name: ENV_TAG
+              value: demo
+          volumeMounts:
+            - name: config-volume
+              mountPath: /home/go-chujang/config.yaml
+              subPath: config.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: app-config
+            items:
+              - key: config.yaml
+                path: config.yaml
+      restartPolicy: Never
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 60

@@ -1,23 +1,23 @@
-# daemonset
+# daemonSet
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: promtail
+  name: dp-stack-promtail
   namespace: demo
   labels:
-    app: promtail
+    app: stack-promtail
 spec:
   selector:
     matchLabels:
-      app: promtail
+      app: stack-promtail
   template:
     metadata:
       labels:
-        app: promtail
+        app: stack-promtail
     spec:
       serviceAccountName: promtail
       containers:
-        - name: promtail
+        - name: stack-promtail
           image: grafana/promtail:2.9.1
           args:
             - "-config.file=/etc/promtail/promtail.yaml"

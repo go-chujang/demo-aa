@@ -2,26 +2,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: loki
+  name: dp-stack-loki
   namespace: demo
   labels:
-    app: loki
+    app: stack-loki
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: loki
+      app: stack-loki
   template:
     metadata:
       labels:
-        app: loki
+        app: stack-loki
     spec:
-      securityContext:
-        runAsUser: 10001
-        runAsGroup: 10001
-        fsGroup: 10001
       containers:
-        - name: loki
+        - name: stack-loki
           image: grafana/loki:2.9.1
           args:
             - "-config.file=/etc/loki/loki.yaml"
@@ -40,21 +36,20 @@ spec:
               - key: loki.yaml
                 path: loki.yaml
         - name: loki-storage
-          hostPath:
-            path: /var/snap/microk8s/common/default-storage/loki
-            type: DirectoryOrCreate
+          persistentVolumeClaim:
+            claimName: pvc-loki
 ---
 # service
 apiVersion: v1
 kind: Service
 metadata:
-  name: loki
+  name: svc-loki
   namespace: demo
   labels:
-    app: loki
+    app: svc-loki
 spec:
   selector:
-    app: loki
+    app: stack-loki
   ports:
     - port: 3100
       targetPort: 3100
