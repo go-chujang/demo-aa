@@ -104,17 +104,23 @@ func SyncUserState(before *model.UserAccount) (*model.UserAccount, error) {
 	}
 }
 
-func userOperation(user *model.UserAccount, packed []byte) (*UserOperationWithHash, error) {
+func userOperation(target contractName, user *model.UserAccount, packed []byte) (*UserOperationWithHash, error) {
+	targetCA, exist := caMap[target]
+	if !exist {
+		return nil, errors.New("unsupported target")
+	}
+
 	account := *user.Account
 	nonce, err := api.getNonce(account)
 	if err != nil {
 		return nil, err
 	}
-	paymaster := caMap[PaymasterName]
-	callData, err := api.packCallData(paymaster, packed)
+	callData, err := api.packCallData(targetCA, packed)
 	if err != nil {
 		return nil, err
 	}
+
+	paymaster := caMap[PaymasterName]
 	op := userOperationDefault(paymaster).
 		SetSender(account).
 		SetNonce(nonce).
@@ -149,7 +155,7 @@ func UserOpTransferToken(user *model.UserAccount, to common.Address, value *big.
 	if err != nil {
 		return nil, err
 	}
-	return userOperation(user, packed)
+	return userOperation(PaymasterName, user, packed)
 }
 
 func GambleRockPaperScissors(user *model.UserAccount, choice string) (*UserOperationWithHash, error) {
@@ -157,7 +163,7 @@ func GambleRockPaperScissors(user *model.UserAccount, choice string) (*UserOpera
 	if err != nil {
 		return nil, err
 	}
-	return userOperation(user, packed)
+	return userOperation(GambleName, user, packed)
 }
 
 func GambleZeroToNince(user *model.UserAccount, guess *big.Int) (*UserOperationWithHash, error) {
@@ -165,7 +171,7 @@ func GambleZeroToNince(user *model.UserAccount, guess *big.Int) (*UserOperationW
 	if err != nil {
 		return nil, err
 	}
-	return userOperation(user, packed)
+	return userOperation(GambleName, user, packed)
 }
 
 func GambleExchange(user *model.UserAccount, tokenId, amount *big.Int) (*UserOperationWithHash, error) {
@@ -173,5 +179,5 @@ func GambleExchange(user *model.UserAccount, tokenId, amount *big.Int) (*UserOpe
 	if err != nil {
 		return nil, err
 	}
-	return userOperation(user, packed)
+	return userOperation(GambleName, user, packed)
 }

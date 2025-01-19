@@ -14,8 +14,7 @@ import (
 )
 
 const (
-	// URL           = "http://localhost:5000"
-	URL           = "http://172.29.126.229:80"
+	URL           = "http://localhost:80"
 	privateKeyHex = "0x52a01f1560d12c932a72dfa1730de107be0ff1c9c22e42d89b9a2a78d9b2c467"
 
 	PROGRESS_LOGIN    = "login"
